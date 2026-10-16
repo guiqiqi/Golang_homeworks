@@ -6,17 +6,26 @@ package order_total
 // Расчёт скидки выполняется целочисленно с округлением вниз до копейки.
 // Можно считать, что суммы и произведения не переполняют int64.
 func CalculateOrder(prices []int64, quantities []int, discount int) (subtotal, discountAmount, total int64) {
-	if len(prices) != len(quantities) || !(discount >= 0 && discount <= 100){
+	if (len(prices) != len(quantities)) ||
+		(len(prices) == len(quantities) && len(prices) == 0) ||
+		(discount > 100 || discount < 0) {
 		return 0, 0, 0
 	}
-	for i := range prices {
-		if prices[i] < 0 || quantities[i] < 0 {
+
+	subtotal = 0
+
+	for i := 0; i < len(prices); i++ {
+		price := prices[i]
+		quantity := quantities[i]
+
+		if price < 0 || quantity < 0 {
 			return 0, 0, 0
 		}
-		subtotal += prices[i] * int64(quantities[i])
+
+		subtotal += price * int64(quantity)
 	}
-	
+
 	discountAmount = (subtotal * int64(discount)) / 100
-	total = subtotal - discountAmount
-	return
+
+	return subtotal, discountAmount, subtotal - discountAmount
 }
